@@ -2,7 +2,7 @@ package OOP2.Solution;
 
 import OOP2.Provided.Person;
 
-public class PersonImpl implements Person {
+public class PersonImpl implements Person, Comparable<Person> {
 	private Integer id;
 	private String name;
 	private ArrayList<Person> friends;
@@ -53,12 +53,40 @@ public class PersonImpl implements Person {
 
 	@Override
 	public Iterable<Status> getStatusesRecent() {
-		return new ArrayList<Status>(this.statuses);
+		return this.statuses.stream()
+				.sorted((s1, s2) -> s2.getId().compareTo(s1.getId()))
+				.collect(Collectors.toList());
 	}
 
 	@Override
 	public Iterable<Status> getStatusesPopular() {
-		
+		return this.statuses.stream()
+				.sorted((s1, s2) -> {
+					int cmp = s2.getLikesCount().compareTo(s1.getLikesCount());
+					if (cmp == 0) {
+						return s2.getId().compareTo(s1.getId());
+					}
+					return cmp;
+				})
+				.collect(Collectors.toList());
 	}
+
+	@Override
+	public int compareTo(Person other) {
+		return this.id.compareTo(other.getId());
+	}
+
+	protected boolean eq(Object o) {
+		if (!(o instanceof PersonImpl)) return false;
+		PersonImpl other = (PersonImpl)o;
+		return this.id.equals(other.id);
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		return (this.eq(o) && ((PersonImpl)o).eq(this));
+	}
+
+
 
 }
